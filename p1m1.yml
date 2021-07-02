@@ -1,0 +1,184 @@
+- id: Import-CSV_1
+  inputs: {}
+  operationId: Import CSV
+  parameters:
+    filename: UPLOAD$/c9e782e93f673edb6eddb67bf67f2922.events.csv
+    imported_table: f398a6ea-e6a0-3403-af8f-c6179470ac94
+    infer: yes
+    last_settings: |-
+      {
+        "sql" : "",
+        "infer" : "yes",
+        "timestamp_format" : "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+        "quote" : "\"",
+        "imported_columns" : "",
+        "null_value" : "",
+        "escape" : "\\",
+        "columns" : "",
+        "filename" : "UPLOAD$/c9e782e93f673edb6eddb67bf67f2922.events.csv",
+        "comment" : "",
+        "ignore_trailing_white_space" : "no",
+        "ignore_leading_white_space" : "no",
+        "date_format" : "yyyy-MM-dd",
+        "error_handling" : "FAILFAST",
+        "limit" : "",
+        "delimiter" : ","
+      }
+  parametricParameters: {}
+  x: -612.3408414911464
+  y: -60.202246791993396
+- id: Use-table-as-vertices_1
+  inputs:
+    table:
+      boxId: Import-CSV_1
+      id: table
+  operationId: Use table as vertices
+  parameters: {}
+  parametricParameters: {}
+  x: -382.060367022017
+  y: -41.10163465398136
+- id: Import-CSV_2
+  inputs: {}
+  operationId: Import CSV
+  parameters:
+    filename: UPLOAD$/96c2f59dd2263453e989bea91d795f1e.players.csv
+    imported_table: bc7a4cfc-3888-3aeb-9419-14847ffe8cde
+    infer: yes
+    last_settings: |-
+      {
+        "sql" : "",
+        "infer" : "yes",
+        "timestamp_format" : "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
+        "quote" : "\"",
+        "imported_columns" : "",
+        "null_value" : "",
+        "escape" : "\\",
+        "columns" : "",
+        "filename" : "UPLOAD$/96c2f59dd2263453e989bea91d795f1e.players.csv",
+        "comment" : "",
+        "ignore_trailing_white_space" : "no",
+        "ignore_leading_white_space" : "no",
+        "date_format" : "yyyy-MM-dd",
+        "error_handling" : "FAILFAST",
+        "limit" : "",
+        "delimiter" : ","
+      }
+  parametricParameters: {}
+  x: -506.53580977136187
+  y: -257.1723963365064
+- id: Use-table-as-vertex-attributes_1
+  inputs:
+    attributes:
+      boxId: Import-CSV_2
+      id: table
+    graph:
+      boxId: Use-table-as-vertices_1
+      id: graph
+  operationId: Use table as vertex attributes
+  parameters:
+    id_attr: player_id
+    id_column: id
+  parametricParameters: {}
+  x: -154.15766427505625
+  y: -61.36681880295447
+- id: Derive-vertex-attribute_1
+  inputs:
+    graph:
+      boxId: Bundle-vertex-attributes-into-a-Vector_1
+      id: graph
+  operationId: Derive vertex attribute
+  parameters:
+    expr: 'f"${match_id}%s_$ts%08.2f"'
+    output: match_ts
+  parametricParameters: {}
+  x: -282.51122656232894
+  y: 156.83253383278765
+- id: Add-rank-attribute_1
+  inputs:
+    graph:
+      boxId: Derive-vertex-attribute_1
+      id: graph
+  operationId: Add rank attribute
+  parameters:
+    keyattr: match_ts
+    rankattr: event_ranking
+  parametricParameters: {}
+  x: -55.23846696110324
+  y: 82.2270998004803
+- id: Derive-vertex-attribute_2
+  inputs:
+    graph:
+      boxId: Add-rank-attribute_1
+      id: graph
+  operationId: Derive vertex attribute
+  parameters:
+    expr: 1+event_ranking
+    output: next_event_index
+  parametricParameters: {}
+  x: 238.37314152671203
+  y: 40.38920400647794
+- id: Connect-vertices-on-attribute_1
+  inputs:
+    graph:
+      boxId: Derive-vertex-attribute_2
+      id: graph
+  operationId: Connect vertices on attribute
+  parameters:
+    fromAttr: next_event_index
+  parametricParameters: {}
+  x: -414.93971051080615
+  y: 441.4177850220763
+- id: Derive-edge-attribute_1
+  inputs:
+    graph:
+      boxId: Connect-vertices-on-attribute_1
+      id: graph
+  operationId: Derive edge attribute
+  parameters:
+    expr: >-
+      if((src$next_event_index == dst$event_ranking) && (dst$ts - src$ts < 5))1
+      else 0
+    output: valid
+  parametricParameters: {}
+  x: -34.618728949999685
+  y: 352.05760734026273
+- id: Filter-by-attributes_1
+  inputs:
+    graph:
+      boxId: Derive-edge-attribute_1
+      id: graph
+  operationId: Filter by attributes
+  parameters:
+    filterea_valid: '1'
+  parametricParameters: {}
+  x: 238.92536679781313
+  y: 307.5264001713555
+- id: Graph-visualization_1
+  inputs:
+    graph:
+      boxId: Filter-by-attributes_1
+      id: graph
+  operationId: Graph visualization
+  parameters:
+    state: >-
+      {"left":{"projectPath":"","graphMode":"sampled","display":"svg","filters":{"vertex":{"match_id":"2057960","ts":"<=
+      600"},"edge":{}},"bucketCount":4,"preciseBucketSizes":false,"relativeEdgeDensity":false,"axisOptions":{"vertex":{},"edge":{}},"sampleRadius":0,"attributeTitles":{"position":"x_y_abs_bundle","label":"name","icon":"team_name"},"animate":{"enabled":false,"style":"expand","labelAttraction":0},"centers":["*"],"customVisualizationFilters":false,"vertexColorMap":"Viridis","labelColorMap":"Viridis","edgeColorMap":"Viridis","sliderColorMap":"Invisible
+      to
+      visible","edgeStyle":"undirected","lastCentersRequest":{"count":1,"filters":[]},"lastCentersResponse":["65459596614152"]},"right":{"display":"svg","filters":{"vertex":{},"edge":{}},"bucketCount":4,"preciseBucketSizes":false,"relativeEdgeDensity":false,"axisOptions":{"vertex":{},"edge":{}},"sampleRadius":1,"attributeTitles":{},"animate":{"enabled":false,"style":"expand","labelAttraction":0},"centers":["auto"],"customVisualizationFilters":false,"vertexColorMap":"Viridis","labelColorMap":"Viridis","edgeColorMap":"Viridis","sliderColorMap":"Blue
+      to orange"}}
+  parametricParameters: {}
+  x: 532.643328832665
+  y: 238.54593418734413
+- id: Bundle-vertex-attributes-into-a-Vector_1
+  inputs:
+    graph:
+      boxId: Use-table-as-vertex-attributes_1
+      id: graph
+  operationId: Bundle vertex attributes into a Vector
+  parameters:
+    elements: 'x_abs,y_abs'
+    output: x_y_abs_bundle
+  parametricParameters: {}
+  x: -587.058153122705
+  y: 143.42136015176726
+
